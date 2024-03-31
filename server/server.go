@@ -20,22 +20,16 @@ package server
 
 import (
 	"context"
-	"fmt"
-	"sort"
-	"sync"
-)
-
-import (
-	"github.com/dubbogo/gost/log/logger"
-
-	"github.com/pkg/errors"
-)
-
-import (
 	"dubbo.apache.org/dubbo-go/v3/common"
+	"dubbo.apache.org/dubbo-go/v3/common/constant"
 	"dubbo.apache.org/dubbo-go/v3/metadata"
 	"dubbo.apache.org/dubbo-go/v3/protocol"
 	registry_exposed "dubbo.apache.org/dubbo-go/v3/registry/exposed_tmp"
+	"fmt"
+	"github.com/dubbogo/gost/log/logger"
+	"github.com/pkg/errors"
+	"sort"
+	"sync"
 )
 
 // proServices are for internal services
@@ -106,6 +100,9 @@ func (ii *infoInvoker) Invoke(ctx context.Context, invocation protocol.Invocatio
 		res, err := method.MethodFunc(ctx, args, ii.svc)
 		result.SetResult(res)
 		result.SetError(err)
+		if attach, ok := ctx.Value(constant.AttachmentKey).(map[string]interface{}); ok {
+			result.SetAttachments(attach)
+		}
 		return result
 	}
 	result.SetError(fmt.Errorf("no match method for %s", name))

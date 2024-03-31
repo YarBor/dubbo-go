@@ -19,24 +19,6 @@ package triple
 
 import (
 	"context"
-	"fmt"
-	"net/http"
-	"reflect"
-	"strings"
-	"sync"
-)
-
-import (
-	"github.com/dubbogo/gost/log/logger"
-
-	grpc_go "github.com/dubbogo/grpc-go"
-
-	"github.com/dustin/go-humanize"
-
-	"google.golang.org/grpc"
-)
-
-import (
 	"dubbo.apache.org/dubbo-go/v3/common"
 	"dubbo.apache.org/dubbo-go/v3/common/constant"
 	"dubbo.apache.org/dubbo-go/v3/config"
@@ -46,6 +28,15 @@ import (
 	"dubbo.apache.org/dubbo-go/v3/protocol/invocation"
 	tri "dubbo.apache.org/dubbo-go/v3/protocol/triple/triple_protocol"
 	"dubbo.apache.org/dubbo-go/v3/server"
+	"fmt"
+	"github.com/dubbogo/gost/log/logger"
+	grpc_go "github.com/dubbogo/grpc-go"
+	"github.com/dustin/go-humanize"
+	"google.golang.org/grpc"
+	"net/http"
+	"reflect"
+	"strings"
+	"sync"
 )
 
 // Server is TRIPLE adaptation layer representation. It makes use of tri.Server to
@@ -246,11 +237,12 @@ func (s *Server) handleServiceWithInfo(interfaceName string, invoker protocol.In
 					res := invoker.Invoke(ctx, invo)
 					// todo(DMwangnima): modify InfoInvoker to get a unified processing logic
 					// please refer to server/InfoInvoker.Invoke()
-					if triResp, ok := res.Result().(*tri.Response); ok {
-						return triResp, res.Error()
+					triResp, ok := res.Result().(*tri.Response)
+					if !ok {
+						// please refer to proxy/proxy_factory/ProxyInvoker.Invoke
+						triResp = tri.NewResponse([]interface{}{res.Result()})
 					}
-					// please refer to proxy/proxy_factory/ProxyInvoker.Invoke
-					triResp := tri.NewResponse([]interface{}{res.Result()})
+					addReturnAttachments(triResp, res)
 					return triResp, res.Error()
 				},
 				opts...,
@@ -301,6 +293,14 @@ func (s *Server) handleServiceWithInfo(interfaceName string, invoker protocol.In
 				},
 				opts...,
 			)
+		}
+	}
+}
+
+func addReturnAttachments(resp *tri.Response, res protocol.Result) {
+	for k, vs := range res.Attachments() {
+		for _, v := range vs.([]string) {
+			resp.Header().Add(k, v)
 		}
 	}
 }

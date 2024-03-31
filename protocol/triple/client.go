@@ -20,22 +20,15 @@ package triple
 import (
 	"context"
 	"crypto/tls"
-	"fmt"
-	"net"
-	"net/http"
-	"strings"
-)
-
-import (
-	"github.com/dustin/go-humanize"
-
-	"golang.org/x/net/http2"
-)
-
-import (
 	"dubbo.apache.org/dubbo-go/v3/common"
 	"dubbo.apache.org/dubbo-go/v3/common/constant"
 	tri "dubbo.apache.org/dubbo-go/v3/protocol/triple/triple_protocol"
+	"fmt"
+	"github.com/dustin/go-humanize"
+	"golang.org/x/net/http2"
+	"net"
+	"net/http"
+	"strings"
 )
 
 const (
@@ -69,6 +62,11 @@ func (cm *clientManager) callUnary(ctx context.Context, method string, req, resp
 	triResp := tri.NewResponse(resp)
 	if err := triClient.CallUnary(ctx, triReq, triResp); err != nil {
 		return err
+	} else {
+		i := ctx.Value(constant.AttachmentKey)
+		for k, vs := range triResp.Header() {
+			i.(map[string]interface{})[k] = vs
+		}
 	}
 	return nil
 }
