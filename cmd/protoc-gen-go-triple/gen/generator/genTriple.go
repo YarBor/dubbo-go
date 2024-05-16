@@ -25,6 +25,7 @@ import (
 
 import (
 	"github.com/golang/protobuf/protoc-gen-go/descriptor"
+
 	"github.com/pkg/errors"
 )
 
