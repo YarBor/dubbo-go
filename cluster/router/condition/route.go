@@ -26,19 +26,17 @@ import (
 )
 
 import (
-	"github.com/dubbogo/gost/log/logger"
-
-	"github.com/pkg/errors"
-
-	"gopkg.in/yaml.v2"
-)
-
-import (
 	"dubbo.apache.org/dubbo-go/v3/cluster/router/condition/matcher"
 	"dubbo.apache.org/dubbo-go/v3/common"
 	"dubbo.apache.org/dubbo-go/v3/common/constant"
 	"dubbo.apache.org/dubbo-go/v3/config"
 	"dubbo.apache.org/dubbo-go/v3/protocol"
+
+	"github.com/dubbogo/gost/log/logger"
+
+	"github.com/pkg/errors"
+
+	"gopkg.in/yaml.v2"
 )
 
 var (
